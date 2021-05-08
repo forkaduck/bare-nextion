@@ -15,7 +15,7 @@ extern struct queue g_uart1_output;
 extern struct queue g_uart1_input;
 
 // init uart1 interface and queue
-void uart1_init(const uint_fast32_t baud);
+void uart1_init(const uint_fast32_t baud, const uint_fast32_t sysclock);
 void uart1_send_str(const char out[], size_t size);
 
 // gets one char from the queue

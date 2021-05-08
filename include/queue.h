@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#define QUEUE_SIZE 100
+#define QUEUE_SIZE 10
 
 struct queue {
 	volatile char q[QUEUE_SIZE];

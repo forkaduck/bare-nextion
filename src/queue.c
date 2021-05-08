@@ -7,8 +7,8 @@
 
 inline char queue_get_char(struct queue *curr)
 {
-	/* check if queue reached the end */
-	if (curr->read_offset - curr->q >= QUEUE_SIZE) {
+	/* check if queue pointer reached the end */
+	if (curr->read_offset >= curr->q + QUEUE_SIZE - 1) {
 		curr->read_offset = curr->q;
 	}
 
@@ -21,8 +21,8 @@ inline char queue_get_char(struct queue *curr)
 
 inline void queue_append_char(struct queue *curr, char ch)
 {
-	/* check if queue reached the end */
-	if (curr->write_offset - curr->q >= QUEUE_SIZE) {
+	/* check if queue pointer reached the end */
+	if (curr->write_offset >= curr->q + QUEUE_SIZE - 1) {
 		curr->write_offset = curr->q;
 	}
 
