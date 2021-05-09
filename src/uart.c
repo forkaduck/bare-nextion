@@ -5,6 +5,7 @@
 #include "queue.h"
 #include "uart.h"
 
+volatile bool g_uart1_output_send = false;
 struct queue g_uart1_output;
 struct queue g_uart1_input;
 
@@ -22,16 +23,15 @@ void USART1_IRQHandler()
 	}
 
 	/* check if the transmit register is empty*/
-	if (USART1->SR & USART_SR_TC) {
+	if (USART1->SR & USART_SR_TC || g_uart1_output_send) {
 		char temp;
 
 		temp = queue_get_char(&g_uart1_output);
-		if (temp != CHAR_MAX) {
+		if (temp != 0x0) {
 			USART1->DR = temp;
-		} else {
-			/* if queue is empty, unset sending */
-			USART1->SR &= ~USART_SR_TC;
 		}
+		USART1->SR &= ~USART_SR_TC;
+		g_uart1_output_send = false;
 	}
 }
 
@@ -74,5 +74,13 @@ inline void uart1_send_str(const char out[], size_t size)
 	for (i = 0; i < size; i++) {
 		queue_append_char(&g_uart1_output, out[i]);
 	}
+	g_uart1_output_send = true;
+	USART1_IRQHandler();
+}
+
+inline void uart1_send_char(const char out)
+{
+	queue_append_char(&g_uart1_output, out);
+	g_uart1_output_send = true;
 	USART1_IRQHandler();
 }
