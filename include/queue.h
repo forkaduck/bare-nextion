@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define QUEUE_SIZE 10
+#define QUEUE_SIZE 100
 
 struct queue {
 	volatile char q[QUEUE_SIZE];
