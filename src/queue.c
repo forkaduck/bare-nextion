@@ -10,13 +10,12 @@ inline char queue_get_char(struct queue *curr)
 	/* check if queue read pointer reached the end */
 	if (curr->read_offset >= curr->q + QUEUE_SIZE) {
 		curr->read_offset = curr->q;
-
-		curr->write_wrap = false;
+		curr->wrap = true;
 	}
 
 	/* check if one (or more) chars are readable */
-	if ((curr->write_offset - curr->read_offset) != 0) {
-		return *(curr->read_offset++);
+	if (curr->write_offset > curr->read_offset && !curr->wrap) {
+		return *curr->read_offset++;
 	}
 	return 0x0;
 }
@@ -27,11 +26,11 @@ inline void queue_append_char(struct queue *curr, char ch)
 	if (curr->write_offset >= curr->q + QUEUE_SIZE) {
 		curr->write_offset = curr->q;
 
-		curr->write_wrap = true;
+		curr->wrap = false;
 	}
 
 	/* add char to queue */
-	*(curr->write_offset++) = ch;
+	*curr->write_offset++ = ch;
 }
 
 inline void queue_reset(struct queue *curr)
@@ -39,13 +38,5 @@ inline void queue_reset(struct queue *curr)
 	curr->read_offset = curr->q;
 	curr->write_offset = curr->q;
 
-	curr->write_wrap = false;
-}
-
-inline bool queue_check_overwrite(struct queue *curr)
-{
-	if (curr->write_wrap && curr->read_offset <= curr->write_offset) {
-		return true;
-	}
-	return false;
+	curr->wrap = false;
 }

@@ -5,8 +5,6 @@
 #include "queue.h"
 #include "uart.h"
 
-volatile bool g_uart1_output_send = false;
-struct queue g_uart1_output;
 struct queue g_uart1_input;
 
 void USART1_IRQHandler()
@@ -21,25 +19,12 @@ void USART1_IRQHandler()
 	if (USART1->SR & USART_SR_RXNE) {
 		queue_append_char(&g_uart1_input, USART1->DR);
 	}
-
-	/* check if the transmit register is empty*/
-	if (USART1->SR & USART_SR_TC || g_uart1_output_send) {
-		char temp;
-
-		temp = queue_get_char(&g_uart1_output);
-		if (temp != 0x0) {
-			USART1->DR = temp;
-		}
-		USART1->SR &= ~USART_SR_TC;
-		g_uart1_output_send = false;
-	}
 }
 
 void uart1_init(const uint_fast32_t baud, const uint_fast32_t sysclock)
 {
 	/* reset queues */
 	queue_reset(&g_uart1_input);
-	queue_reset(&g_uart1_output);
 
 	/* enable clock for usart1 */
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN;
@@ -48,8 +33,7 @@ void uart1_init(const uint_fast32_t baud, const uint_fast32_t sysclock)
 	GPIOA->CRH = ((0x4 << (4 * 2)) | (0xb << 4));
 
 	/* receive / transmit interrupt enable, receive / transmit enable */
-	USART1->CR1 =
-		USART_CR1_RXNEIE | USART_CR1_TCIE | USART_CR1_TE | USART_CR1_RE;
+	USART1->CR1 = USART_CR1_RXNEIE | USART_CR1_TE | USART_CR1_RE;
 
 	/* reset control register 2 & 3 to make sure nothing set the registers */
 	USART1->CR2 = 0x0000;
@@ -67,20 +51,24 @@ void uart1_init(const uint_fast32_t baud, const uint_fast32_t sysclock)
 	USART1->CR1 |= USART_CR1_UE;
 }
 
-inline void uart1_send_str(const char out[], size_t size)
-{
-	size_t i;
-
-	for (i = 0; i < size; i++) {
-		queue_append_char(&g_uart1_output, out[i]);
-	}
-	g_uart1_output_send = true;
-	USART1_IRQHandler();
-}
-
 inline void uart1_send_char(const char out)
 {
-	queue_append_char(&g_uart1_output, out);
-	g_uart1_output_send = true;
-	USART1_IRQHandler();
+	// wait till data transmit register empty
+	while (!(USART1->SR & USART_SR_TXE)) {
+	}
+	USART1->DR = out;
+
+	// wait for transmission complete
+	while (!(USART1->SR & USART_SR_TC)) {
+	}
+}
+
+inline void uart1_send_str(const char out[], size_t size)
+{
+	size_t i = 0;
+
+	while (out[i] != '\0' && i < size) {
+		uart1_send_char(out[i]);
+		i++;
+	}
 }
