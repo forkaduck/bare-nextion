@@ -54,7 +54,7 @@ enum {
 };
 
 struct display_event {
-	void (*handler)(char[]);
+	void (*handler)(char[], size_t size);
 	uint8_t event_type;
 };
 

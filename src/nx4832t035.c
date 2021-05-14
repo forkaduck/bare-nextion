@@ -66,7 +66,7 @@ void display_event_loop()
 
 	for (i = 0; i < DISPLAY_EVENT_SIZE; i++) {
 		if (d_events[i].event_type == temp[0]) {
-			d_events[i].handler(temp);
+			d_events[i].handler(temp, size);
 		}
 	}
 }
