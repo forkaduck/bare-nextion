@@ -1,6 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <stddef.h>
 #include <stdbool.h>
 
 #define QUEUE_SIZE 100

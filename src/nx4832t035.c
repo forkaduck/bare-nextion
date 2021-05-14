@@ -1,42 +1,72 @@
 #include <stddef.h>
 
+#include "stm32f1xx.h"
+
 #include "nx4832t035.h"
 #include "uart.h"
 
-inline void display_send(const char instruction[], size_t size)
-{
-	const char surfix[] = { 0xff, 0xff, 0xff };
-	const size_t surfix_size = 3;
-
-	uart1_send_str(instruction, size);
-	uart1_send_str(surfix, surfix_size);
-}
+struct display_event d_events[DISPLAY_EVENT_SIZE];
 
 size_t display_read(char out[], const size_t out_size)
 {
-	uint8_t ff_counter = 0;
-	size_t i;
+	size_t i = 0;
+	size_t ff_count = 0;
+
 	volatile char *prev_read;
 
 	prev_read = g_uart1_input.read_offset;
 
-	for (i = 0; i < out_size - 1; i++) {
-		if (ff_counter >= 3) {
-			out[i] = '\0';
+	while (g_uart1_input.write_offset != g_uart1_input.read_offset &&
+	       out_size > i) {
+		out[i] = queue_get_char(&g_uart1_input);
+
+		if (out[i] == 0xff) {
+			ff_count++;
+		}
+
+		if (ff_count > 2) {
 			return i;
 		}
 
-		out[i] = queue_get_char(&g_uart1_input);
-		switch (out[i]) {
-		case 0xff:
-			ff_counter++;
-			break;
+		i++;
+	}
+	g_uart1_input.read_offset = prev_read;
 
-		case 0x00:
-			return 0;
-		}
+	return 0;
+}
+
+inline void display_send(const char instruction[], size_t size)
+{
+	const char surfix[3] = { 0xff, 0xff, 0xff };
+
+	uart1_send_str(instruction, size);
+	uart1_send_str(surfix, 3);
+}
+
+void display_event_init()
+{
+	size_t i;
+
+	for (i = 0; i < DISPLAY_EVENT_SIZE; i++) {
+		d_events[i].event_type = 0;
+		d_events[i].handler = NULL;
+	}
+}
+
+void display_event_loop()
+{
+	size_t i;
+	size_t size;
+	char temp[QUEUE_SIZE];
+
+	size = display_read(temp, 100);
+	if (size == 0) {
+		return;
 	}
 
-	g_uart1_input.read_offset = prev_read;
-	return 0;
+	for (i = 0; i < DISPLAY_EVENT_SIZE; i++) {
+		if (d_events[i].event_type == temp[0]) {
+			d_events[i].handler(temp);
+		}
+	}
 }

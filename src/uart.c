@@ -30,7 +30,7 @@ void uart1_init(const uint_fast32_t baud, const uint_fast32_t sysclock)
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN;
 
 	/* set PA10 input floating and PA9 pushpull */
-	GPIOA->CRH = ((0x4 << (4 * 2)) | (0xb << 4));
+	GPIOA->CRH = (GPIOA->CRH & ~0x00000ff0) | 0x000004b0;
 
 	/* receive / transmit interrupt enable, receive / transmit enable */
 	USART1->CR1 = USART_CR1_RXNEIE | USART_CR1_TE | USART_CR1_RE;
