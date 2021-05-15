@@ -5,17 +5,17 @@
 #include <stdbool.h>
 
 #define QUEUE_SIZE 100
+#define QUEUE_FULL 0x80
+#define QUEUE_EMPTY 0x81
 
 struct queue {
 	volatile char q[QUEUE_SIZE];
-	volatile char *read_offset;
-	volatile char *write_offset;
-
-	volatile bool wrap;
+	volatile size_t read_offset;
+	volatile size_t write_offset;
 };
 
 char queue_get_char(struct queue *curr);
-void queue_append_char(struct queue *curr, char ch);
+char queue_append_char(struct queue *curr, char ch);
 void queue_reset(struct queue *curr);
 
 #endif

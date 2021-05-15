@@ -6,36 +6,33 @@
 
 inline char queue_get_char(struct queue *curr)
 {
-	/* check if queue read pointer reached the end */
-	if (curr->read_offset >= curr->q + QUEUE_SIZE) {
-		curr->read_offset = curr->q;
-		curr->wrap = true;
+	if (curr->read_offset == curr->write_offset) {
+		return QUEUE_EMPTY;
 	}
+	curr->read_offset = (curr->read_offset + 1) % QUEUE_SIZE;
 
-	/* check if one (or more) chars are readable */
-	if (curr->write_offset > curr->read_offset && !curr->wrap) {
-		return *curr->read_offset++;
-	}
-	return 0x0;
+	return curr->q[curr->read_offset];
 }
 
-inline void queue_append_char(struct queue *curr, char ch)
+inline char queue_append_char(struct queue *curr, char ch)
 {
-	/* check if queue write pointer reached the end */
-	if (curr->write_offset >= curr->q + QUEUE_SIZE) {
-		curr->write_offset = curr->q;
-
-		curr->wrap = false;
+	if ((curr->write_offset + 1) == curr->read_offset) {
+		return QUEUE_FULL;
 	}
+	curr->write_offset = (curr->write_offset + 1) % QUEUE_SIZE;
+	curr->q[curr->write_offset] = ch;
 
-	/* add char to queue */
-	*curr->write_offset++ = ch;
+	return curr->q[curr->write_offset];
 }
 
 inline void queue_reset(struct queue *curr)
 {
-	curr->read_offset = curr->q;
-	curr->write_offset = curr->q;
+	size_t i;
 
-	curr->wrap = false;
+	for (i = 0; i < QUEUE_SIZE; i++) {
+		curr->q[i] = 0;
+	}
+
+	curr->read_offset = 0;
+	curr->write_offset = 0;
 }
