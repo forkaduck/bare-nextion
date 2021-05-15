@@ -12,23 +12,28 @@ size_t display_read(char out[], const size_t out_size)
 	size_t i = 0;
 	size_t ff_count = 0;
 
-	volatile char *prev_read;
+	volatile size_t prev_read;
+	char rv = 0;
 
 	prev_read = g_uart1_input.read_offset;
 
-	while (g_uart1_input.write_offset != g_uart1_input.read_offset &&
-	       out_size > i) {
-		out[i] = queue_get_char(&g_uart1_input);
+	for (i = 0; i < out_size; i++) {
+		rv = queue_get_char(&g_uart1_input);
 
-		if (out[i] == 0xff) {
+		if (rv == QUEUE_EMPTY) {
+			break;
+		}
+
+		if (rv == 0xff) {
 			ff_count++;
+
+		} else {
+			out[i] = rv;
 		}
 
 		if (ff_count > 2) {
-			return i;
+			return i - ff_count;
 		}
-
-		i++;
 	}
 	g_uart1_input.read_offset = prev_read;
 
@@ -59,7 +64,7 @@ void display_event_loop()
 	size_t size;
 	char temp[QUEUE_SIZE];
 
-	size = display_read(temp, 100);
+	size = display_read(temp, QUEUE_SIZE);
 	if (size == 0) {
 		return;
 	}
