@@ -7,7 +7,14 @@
 #include "queue.h"
 
 #define DISPLAY_EVENT_SIZE 10
+#define DISPLAY_LAST_ERR D_VAR_NAME_TOOLONG
 
+extern uint8_t g_lasterr;
+
+/**
+ * @brief Return codes dependent on bkcmd.
+ * Contains returned error codes.
+ */
 enum {
 	D_INVALID = 0x00,
 	D_SUCCESSFUL = 0x01,
@@ -29,6 +36,10 @@ enum {
 	D_VAR_NAME_TOOLONG = 0x23,
 };
 
+/**
+ * @brief Return codes valid in all cases.
+ * Contains some events.
+ */
 enum {
 	D_NEXT_STARTUP = 0x000000,
 	D_SERIAL_OVERFLOW = 0x24,
@@ -53,12 +64,20 @@ enum {
 	D_RELEASE = 0x00,
 };
 
+/**
+ * @brief Represents one event
+ * Don't use this struct directly. There is a global array called d_events
+ * where you can add your events.
+ *
+ * <br>The handler is a function pointer to the function which should be called if
+ * the event in event_type is received.
+ */
 struct display_event {
 	void (*handler)(char[], size_t size);
 	uint8_t event_type;
 };
 
-extern struct display_event d_events[DISPLAY_EVENT_SIZE];
+extern struct display_event g_d_events[DISPLAY_EVENT_SIZE];
 
 struct D_TOUCH_EVENT {
 	uint8_t page_num;
@@ -88,10 +107,36 @@ struct D_NUM {
 	uint32_t num;
 };
 
+/**
+ * @brief Sends a string with the termination characters attached.
+ * @param instruction The string to send to the display.
+ * @param size The size of the string.
+ */
 void display_send(const char instruction[], size_t size);
+
+/**
+ * @brief Read raw returned messages.
+ * @param out A string to which the returned event or code is written.
+ * @param out_size The size of the string.
+ */
 size_t display_read(char out[], const size_t out_size);
 
+/**
+ * @brief Initialize the event array.
+ */
 void display_event_init();
+
+/**
+ * @brief Reads the oldest event and calls the appropriate handler.
+ * This function needs to be called repeatably to be able to handle all incomming events
+ * at nearly real time. Like in the main function.
+ */
 void display_event_loop();
+
+/**
+ * @brief Clears the pending error from the last error
+ * @return Returns the last error.
+ */
+uint8_t display_clear_err();
 
 #endif
