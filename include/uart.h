@@ -11,7 +11,7 @@
 #define BB_PERIPH(byteoff, bitnum)                                             \
 	(PERIPH_BB_BASE + (byteoff - PERIPH_BASE) * 32 + (bitnum * 4))
 
-extern struct queue g_uart1_input;
+extern struct queue g_uart_input;
 
 // init uart1 interface and queue
 void uart_init(const uint_fast32_t baud, const uint_fast32_t sysclock);

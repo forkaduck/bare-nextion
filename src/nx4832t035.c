@@ -17,10 +17,10 @@ size_t display_read(char out[], const size_t out_size)
 	volatile size_t prev_read;
 	char rv = 0;
 
-	prev_read = g_uart1_input.read_offset;
+	prev_read = g_uart_input.read_offset;
 
 	for (i = 0; i < out_size; i++) {
-		rv = queue_get_char(&g_uart1_input);
+		rv = queue_get_char(&g_uart_input);
 
 		if (rv == QUEUE_EMPTY) {
 			break;
@@ -37,7 +37,7 @@ size_t display_read(char out[], const size_t out_size)
 			return i - ff_count;
 		}
 	}
-	g_uart1_input.read_offset = prev_read;
+	g_uart_input.read_offset = prev_read;
 
 	return 0;
 }
