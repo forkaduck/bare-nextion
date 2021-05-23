@@ -34,7 +34,7 @@ size_t display_read(char out[], const size_t out_size)
 		}
 
 		if (ff_count > 2) {
-			return i - ff_count;
+			return i - (ff_count - 1);
 		}
 	}
 	g_uart_input.read_offset = prev_read;
