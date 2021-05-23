@@ -1,3 +1,7 @@
+/** @file
+ *  @brief Contains some uart hardware abstraction functions.
+*/
+
 #include <limits.h>
 
 #include "stm32f1xx.h"
@@ -40,7 +44,7 @@ void uart_init(const uint_fast32_t baud, const uint_fast32_t sysclock)
 	USART1->CR3 = 0x0000;
 
 	/* set baud like the example 8Mhz / 16 * 9600b/s = 52.08333 */
-	USART1->BRR = (sysclock / (16 * baud)) << 4;
+	USART1->BRR = (sysclock / (16 * baud)) << 4 | 0xc;
 
 	/* Enable IRQ */
 	NVIC_SetPriority(USART1_IRQn, 1);

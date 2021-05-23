@@ -1,3 +1,7 @@
+/** @file
+ *  @brief Contains most of the user facing functions for use with the displays.
+*/
+
 #include <stddef.h>
 
 #include "stm32f1xx.h"
@@ -17,6 +21,7 @@ size_t display_read(char out[], const size_t out_size)
 	volatile size_t prev_read;
 	char rv = 0;
 
+	/* safe previous queue offset to be able to restore it later */
 	prev_read = g_uart_input.read_offset;
 
 	for (i = 0; i < out_size; i++) {
@@ -33,10 +38,13 @@ size_t display_read(char out[], const size_t out_size)
 			out[i] = rv;
 		}
 
+		/* wait for 3 0xff and then stop */
 		if (ff_count > 2) {
 			return i - (ff_count - 1);
 		}
 	}
+
+	/* reset the queue if no chars were read */
 	g_uart_input.read_offset = prev_read;
 
 	return 0;
@@ -59,6 +67,7 @@ void display_event_init()
 		g_d_events[i].handler = NULL;
 	}
 
+	/* increment loglevel of the display to catch all errors and success messages */
 	display_send("bkcmd=3", 7);
 }
 
@@ -73,6 +82,7 @@ void display_event_loop()
 		return;
 	}
 
+	/* if the retuned code is not an error call the handler function */
 	if (temp[0] > DISPLAY_LAST_ERR) {
 		for (i = 0; i < DISPLAY_EVENT_SIZE; i++) {
 			if (g_d_events[i].event_type == temp[0]) {
