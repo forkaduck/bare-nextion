@@ -11,8 +11,6 @@
 #define DISPLAY_EVENT_SIZE 10
 #define DISPLAY_LAST_ERR D_VAR_NAME_TOOLONG
 
-extern uint8_t g_lasterr;
-
 /**
  * @brief Return codes dependent on bkcmd.
  *
@@ -117,7 +115,7 @@ struct display_event {
 	uint8_t event_type;
 };
 
-extern struct display_event g_d_events[DISPLAY_EVENT_SIZE];
+extern struct display_event g_devents[DISPLAY_EVENT_SIZE];
 
 struct D_TOUCH_EVENT {
 	uint8_t page_num;
@@ -171,11 +169,6 @@ void display_event_init();
  * @brief Reads the oldest event and calls the appropriate handler.
  * This function needs to be called repeatably to be able to handle all incoming events
  * at nearly real time. Like in the main function.
+ * @return The first error code received or 0xff if no error has been received.
  */
-void display_event_loop();
-
-/**
- * @brief Clears the pending error from the last error
- * @return Returns the last error.
- */
-uint8_t display_clear_err();
+uint8_t display_event_loop();

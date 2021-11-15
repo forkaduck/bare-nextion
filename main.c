@@ -169,6 +169,7 @@ void ready_event(char out[], size_t size)
 int main()
 {
 	size_t counter;
+	uint8_t last_error;
 
 	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
 
@@ -181,16 +182,16 @@ int main()
 	display_event_init();
 
 	/* on touch of some button */
-	g_d_events[0].event_type = D_TOUCH_EVENT;
-	g_d_events[0].handler = touch_event;
+	g_devents[0].event_type = D_TOUCH_EVENT;
+	g_devents[0].handler = touch_event;
 
 	/* on a number received */
-	g_d_events[1].event_type = D_NUM;
-	g_d_events[1].handler = num_event;
+	g_devents[1].event_type = D_NUM;
+	g_devents[1].handler = num_event;
 
 	/* on startup of the display */
-	g_d_events[2].event_type = D_READY;
-	g_d_events[2].handler = ready_event;
+	g_devents[2].event_type = D_READY;
+	g_devents[2].handler = ready_event;
 
 	counter = 0;
 	while (1) {
@@ -200,13 +201,13 @@ int main()
 
 			/* send an invalid command */
 			display_send("t1.val=\"dingdong\"", 20);
-			if (display_clear_err() != UINT8_MAX) {
+			if (last_error != UINT8_MAX) {
 				LEDS(0) = 1;
 			}
 		}
 
 		/* run 1 event handler per call */
-		display_event_loop();
+		last_error = display_event_loop();
 
 		wait_ms(1);
 		counter++;
