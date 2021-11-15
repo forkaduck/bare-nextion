@@ -104,7 +104,7 @@ enum {
 /**
  * @brief Represents one event.
  *
- * Don't use this struct directly. There is a global array called d_events
+ * Don't use this struct directly. There is a global array called g_devents
  * where you can add your events.
  *
  * The handler is a function pointer to the function which should be called if
