@@ -1,9 +1,7 @@
 /** @file
  *  @brief Contains the input queue implementation.
 */
-
-#ifndef QUEUE_H
-#define QUEUE_H
+#pragma once
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -38,5 +36,3 @@ char queue_append_char(struct queue *curr, char ch);
  * @param curr A pointer to a queue struct which should be used.
  */
 void queue_reset(struct queue *curr);
-
-#endif

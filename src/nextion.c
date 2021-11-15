@@ -6,7 +6,7 @@
 
 #include "stm32f1xx.h"
 
-#include "nx4832t035.h"
+#include "nextion.h"
 #include "uart.h"
 
 uint8_t g_lasterr = UINT8_MAX;

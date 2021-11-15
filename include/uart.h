@@ -1,9 +1,7 @@
 /** @file
  *  @brief Contains some uart hardware abstraction functions.
 */
-
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -36,4 +34,3 @@ void uart_send_str(const char out[], size_t size);
  * @param out The char to be sent.
  */
 void uart_send_char(const char out);
-#endif

@@ -3,7 +3,7 @@
 #include <limits.h>
 #include "stm32f1xx.h"
 
-#include "nx4832t035.h"
+#include "nextion.h"
 #include "uart.h"
 
 /// bit_word_addr = bit_band_base + (byte_offset * 32) + (bit_number * 4)

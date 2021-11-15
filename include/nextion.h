@@ -1,8 +1,7 @@
 /** @file
  *  @brief Contains most of the user facing functions for use with the displays.
 */
-#ifndef NX4832T035
-#define NX4832T035
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -180,5 +179,3 @@ void display_event_loop();
  * @return Returns the last error.
  */
 uint8_t display_clear_err();
-
-#endif
